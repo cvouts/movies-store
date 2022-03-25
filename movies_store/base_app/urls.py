@@ -1,9 +1,9 @@
 from django.urls import path
-from .views import MoviesView, RentView
+from .views import MoviesView, RentMovieView, ReturnMovieView
 
 urlpatterns = [
-    path('movies/', MoviesView.as_view()),
+    path('movies', MoviesView.as_view()),
     path('movies/<int:id>', MoviesView.as_view()),
-    path('movies/<str:category>', MoviesView.as_view()),
-    path('rent/<int:id>', RentView.as_view())
+    path('rent', RentMovieView.as_view()),
+    path('return', ReturnMovieView.as_view())
 ]
