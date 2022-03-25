@@ -13,7 +13,6 @@ class Movie(models.Model):
 
 class User(AbstractUser):
     movies_rented = models.ManyToManyField(Movie, through="RentMovie")
-    #debt = models.FloatField()
 
     def get_debt(self):
         pass
@@ -34,8 +33,13 @@ class RentMovie(models.Model):
         formatted_date = self.rent_date.strftime("%-d %B %Y")
         return f"{self.user.username} rented {self.movie.title} on {formatted_date}"
 
-    def get_cost(self):
-        time_passed = self.updated_date - self.rent_date
+    def get_cost(self, returning_now):
+        if returning_now:
+            end_date = self.updated_date
+        else:
+            end_date = date.today()
+
+        time_passed = end_date - self.rent_date
         days_passed = time_passed.days
         if days_passed <= 3:
             self.cost = days_passed

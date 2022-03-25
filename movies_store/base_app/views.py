@@ -104,7 +104,7 @@ class ReturnMovieView(APIView):
             this_rent = RentMovie.objects.get(user=request.user,
                                               movie=serializer.validated_data["movie"],
                                               status="rented_currently")
-            cost = this_rent.get_cost()
+            cost = this_rent.get_cost(True)
 
             rentmovies.update(status="rented_previously", cost=cost)
             return Response({"status": "202 ACCEPTED",
@@ -114,3 +114,37 @@ class ReturnMovieView(APIView):
             return Response({"status": "400 Bad Request",
                             "data": "Movie is not currently rented"},
                             status=status.HTTP_400_BAD_REQUEST)
+
+class UserProfileView(APIView):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({"status": "401 Unauthorized",
+                            "data": "You are not authorized to perform this action"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        #rented_list = RentMovie.objects.filter(user=request.user, status="rented_currently")
+
+        rented_list = RentMovie.objects.filter(user=request.user)
+        return_dict = {}
+        i = 0
+        for item in rented_list:
+            if request.query_params.get("category") and item.movie.category != request.query_params.__getitem__("category"):
+                continue
+
+            if request.query_params.get("status") and item.status != request.query_params.__getitem__("status"):
+                continue
+                
+            key = f"#{i}"
+            this_dict = {}
+            this_dict["movie"] = item.movie.title
+            this_dict["cost"] = item.cost
+            this_dict["rented on"] = item.rent_date.strftime("%-d %B %Y")
+            if item.status == "rented_currently":
+                this_dict["returned on"] = "-"
+                this_dict["status"] = "rented currently"
+            else:
+                this_dict["returned on"] = item.updated_date.strftime("%-d %B %Y")
+                this_dict["status"] = "rented previously"
+
+            return_dict[key] = this_dict
+            i += 1
+        return Response([return_dict], status=status.HTTP_200_OK)
