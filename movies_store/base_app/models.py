@@ -33,8 +33,8 @@ class RentMovie(models.Model):
         formatted_date = self.rent_date.strftime("%-d %B %Y")
         return f"{self.user.username} rented {self.movie.title} on {formatted_date}"
 
-    def get_cost(self, returning_now):
-        if returning_now:
+    def get_cost(self, returned):
+        if returned:
             end_date = self.updated_date
         else:
             end_date = date.today()

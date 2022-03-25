@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Movie, User, RentMovie
 from .serializers import MovieSerializer, RentMovieSerializer
-from datetime import datetime
+from datetime import date
 
 # Create your views here.
 class MoviesView(APIView):
@@ -104,7 +104,7 @@ class ReturnMovieView(APIView):
             this_rent = RentMovie.objects.get(user=request.user,
                                               movie=serializer.validated_data["movie"],
                                               status="rented_currently")
-            cost = this_rent.get_cost(True)
+            cost = this_rent.get_cost(False)
 
             rentmovies.update(status="rented_previously", cost=cost)
             return Response({"status": "202 ACCEPTED",
@@ -132,16 +132,17 @@ class UserProfileView(APIView):
 
             if request.query_params.get("status") and item.status != request.query_params.__getitem__("status"):
                 continue
-                
+
             key = f"#{i}"
             this_dict = {}
             this_dict["movie"] = item.movie.title
-            this_dict["cost"] = item.cost
             this_dict["rented on"] = item.rent_date.strftime("%-d %B %Y")
             if item.status == "rented_currently":
+                this_dict["cost"] = item.get_cost(False)
                 this_dict["returned on"] = "-"
                 this_dict["status"] = "rented currently"
             else:
+                this_dict["cost"] = item.get_cost(True)
                 this_dict["returned on"] = item.updated_date.strftime("%-d %B %Y")
                 this_dict["status"] = "rented previously"
 
