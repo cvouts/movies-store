@@ -4,7 +4,7 @@ from .models import Movie, RentMovie
 class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
-        fields = ['id', 'title', 'category', 'details']
+        fields = ['id', 'title', 'category', 'details', 'rating']
 
 class RentMovieSerializer(serializers.ModelSerializer):
     class Meta:

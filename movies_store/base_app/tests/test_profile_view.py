@@ -5,10 +5,10 @@ from rest_framework.test import APIClient
 
 class ProfileViewTest(TestCase):
     def setUp(self):
-        movie_1 = Movie.objects.create(title="Lord of the Rings", category="Fantasy")
-        movie_2 = Movie.objects.create(title="Matrix", category="Sci-Fi")
-        movie_3 = Movie.objects.create(title="Narnia", category="Fantasy")
-        movie_4 = Movie.objects.create(title="Warcraft", category="Fantasy")
+        movie_1 = Movie.objects.create(title="Lord of the Rings", category="Fantasy", rating=9)
+        movie_2 = Movie.objects.create(title="Matrix", category="Sci-Fi", rating=7)
+        movie_3 = Movie.objects.create(title="Narnia", category="Fantasy", rating=6)
+        movie_4 = Movie.objects.create(title="Warcraft", category="Fantasy", rating=6)
         movie_1.save()
         movie_2.save()
         movie_3.save()
@@ -31,7 +31,7 @@ class ProfileViewTest(TestCase):
         response = self.client.patch(reverse("profile"))
         self.assertEqual(response.status_code, 405)
 
-        rresponse = self.client.delete(reverse("profile"))
+        response = self.client.delete(reverse("profile"))
         self.assertEqual(response.status_code, 405)
 
     def test_not_logged_in(self):
@@ -65,4 +65,7 @@ class ProfileViewTest(TestCase):
         response = client.get(reverse("profile"),
                                {"status": "rented_previously",
                                 "category": "Fantasy"})
+        self.assertEqual(len(response.data), 1)
+
+        response = client.get(reverse("profile"), {"rating" : 9.0})
         self.assertEqual(len(response.data), 1)

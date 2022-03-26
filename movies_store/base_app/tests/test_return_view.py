@@ -6,9 +6,9 @@ import datetime
 
 class RentViewTest(TestCase):
     def setUp(self):
-        self.movie_1 = Movie.objects.create(title="Lord of the Rings", category="Fantasy")
-        movie_2 = Movie.objects.create(title="Matrix", category="Sci-Fi")
-        movie_3 = Movie.objects.create(title="Narnia", category="Fantasy")
+        self.movie_1 = Movie.objects.create(title="Lord of the Rings", category="Fantasy", rating=9)
+        movie_2 = Movie.objects.create(title="Matrix", category="Sci-Fi", rating=7)
+        movie_3 = Movie.objects.create(title="Narnia", category="Fantasy", rating=8)
         self.movie_1.save()
         movie_2.save()
         movie_3.save()

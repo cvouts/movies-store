@@ -19,6 +19,9 @@ class MoviesView(APIView):
         if request.query_params.get("category"):
             movies = movies.filter(category=request.query_params.__getitem__("category"))
 
+        if request.query_params.get("rating"):
+            movies = movies.filter(rating=request.query_params.__getitem__("rating"))
+
         serializer = MovieSerializer(movies, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -160,6 +163,9 @@ class ProfileView(APIView):
                 continue
 
             if request.query_params.get("status") and item.status != request.query_params.__getitem__("status"):
+                continue
+
+            if request.query_params.get("rating") and item.movie.rating != float(request.query_params.__getitem__("rating")):
                 continue
 
             key = f"#{i}"
