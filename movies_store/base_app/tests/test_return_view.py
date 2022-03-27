@@ -67,7 +67,6 @@ class RentViewTest(TestCase):
 
     def test_cost(self):
         today = date.today()
-
         cost = calculate_cost(today - timedelta(days=0), today)
         self.assertEqual(cost, 1.0)
         cost = calculate_cost(today - timedelta(days=1), today)
@@ -85,4 +84,17 @@ class RentViewTest(TestCase):
 
     def test_negative_cost(self):
         client = self.login()
-        self.assertEqual(1, 2)
+        today = date.today()
+
+        user = User.objects.get(id=1)
+        movie = Movie.objects.get(id=1)
+        movie_rent = RentMovie.objects.get(id=1)
+        movie_rent.rent_date = today + timedelta(days=2)
+        movie_rent.save()
+
+        response = client.post(reverse("return"), {"movie" : "1"})
+        rentals = RentMovie.objects.filter(user=user, movie=movie)
+        for rental in rentals:
+            movie_rent.cost = rental.cost
+            movie_rent.save()
+            self.assertEqual(response.status_code, 500)
