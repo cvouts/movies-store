@@ -3,29 +3,30 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Movie, User, RentMovie
-from .serializers import MovieSerializer, RentMovieSerializer
+from .serializers import (MovieDetailsSerializer, MovieBriefSerializer,
+RentMovieSerializer)
+from django.contrib.admin.views.decorators import staff_member_required
 from datetime import date
 
 # Create your views here.
 class MoviesView(APIView):
-
     def get(self, request, id=None):
         if id:
-            movie = Movie.objects.get(id=id)
-            serializer = MovieSerializer(movie)
+            movie = get_object_or_404(Movie, id=id)
+            serializer = MovieDetailsSerializer(movie)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         movies = Movie.objects.all()
         if request.query_params.get("category"):
-            movies = movies.filter(category=request.query_params.__getitem__("category"))
+            movies = movies.filter(category=request.query_params.get("category"))
 
         if request.query_params.get("rating"):
-            movies = movies.filter(rating=request.query_params.__getitem__("rating"))
+            movies = movies.filter(rating=request.query_params.get("rating"))
 
-        serializer = MovieSerializer(movies, many=True)
+        serializer = MovieBriefSerializer(movies, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
+    def check_authentication(self, request):
         if not request.user.is_authenticated:
             return Response({"status": "401 Unauthorized",
                             "data": "You are not authorized to perform this action"},
@@ -35,46 +36,41 @@ class MoviesView(APIView):
             return Response({"status": "403 Forbidden",
                             "data": "You are not authorized to perform this action"},
                             status=status.HTTP_403_FORBIDDEN)
+        return None
 
-        serializer = MovieSerializer(data=request.data)
+    def post(self, request):
+        authentication = self.check_authentication(request)
+        if authentication != None:
+            return authentication
+
+        serializer = MovieDetailsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     def patch(self, request, id=None):
-        if not request.user.is_authenticated:
-            return Response({"status": "401 Unauthorized",
-                            "data": "You are not authorized to perform this action"},
-                            status=status.HTTP_401_UNAUTHORIZED)
+        authentication = self.check_authentication(request)
+        if authentication != None:
+            return authentication
 
-        if not request.user.is_staff:
-            return Response({"status": "403 Forbidden",
-                            "data": "You are not authorized to perform this action"},
-                            status=status.HTTP_403_FORBIDDEN)
-
-        movie = Movie.objects.get(id=id)
-        serializer = MovieSerializer(movie, data=request.data, partial=True)
+        movie = get_object_or_404(Movie, id=id)
+        serializer = MovieDetailsSerializer(movie, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id=None):
-        if not request.user.is_authenticated:
-            return Response({"status": "401 Unauthorized",
-                            "data": "You are not authorized to perform this action"},
-                            status=status.HTTP_401_UNAUTHORIZED)
+        authentication = self.check_authentication(request)
+        if authentication != None:
+            return authentication
 
-        if not request.user.is_staff:
-            return Response({"status": "403 Forbidden",
-                            "data": "You are not authorized to perform this action"},
-                            status=status.HTTP_403_FORBIDDEN)
 
         movie = get_object_or_404(Movie, id=id)
         movie.delete()
-        return Response({"status": "success", "data": "Movie Deleted"}, status=status.HTTP_202_ACCEPTED)
+        return Response({"status": "success", "data": "Movie Deleted"},
+                         status=status.HTTP_202_ACCEPTED)
 
 
 class RentMovieView(APIView):
@@ -86,17 +82,18 @@ class RentMovieView(APIView):
 
         serializer = RentMovieSerializer(data=request.data, partial=True)
 
-
         if not serializer.is_valid():
-            get_object_or_404(Movie, id=request.data["movie"])
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if serializer.errors["movie"][0].code == "does_not_exist":
+                return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        rentmovies = RentMovie.objects.filter(user=request.user,
-                                              movie=serializer.validated_data["movie"]).exclude(status="rented_previously")
+        rent_entries_count = RentMovie.objects.filter(user=request.user,
+                                              movie=serializer.validated_data["movie"],
+                                              status="rented currently").count()
 
-
-        if len(rentmovies) == 0:
-            serializer.save(user=request.user, status="rented_currently")
+        if rent_entries_count == 0:
+            serializer.save(user=request.user, status="rented currently")
             return Response({"status": "202 ACCEPTED",
                         "data": "Movie rented successfully"},
                         status=status.HTTP_202_ACCEPTED)
@@ -116,25 +113,25 @@ class ReturnMovieView(APIView):
         serializer = RentMovieSerializer(data=request.data, partial=True)
 
         if not serializer.is_valid():
-            get_object_or_404(Movie, id=request.data["movie"])
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if serializer.errors["movie"][0].code == "does_not_exist":
+                return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        rentmovies = RentMovie.objects.filter(user=request.user,
+        rent_entries = RentMovie.objects.filter(user=request.user,
                                               movie=serializer.validated_data["movie"],
-                                              status="rented_currently")
-        if len(rentmovies) == 1:
+                                              status="rented currently")
+        if len(rent_entries) == 1:
+            this_rent = rent_entries[0]
 
-            this_rent = RentMovie.objects.get(user=request.user,
-                                              movie=serializer.validated_data["movie"],
-                                              status="rented_currently")
             cost = calculate_cost(this_rent.rent_date, date.today())
-            this_rent.status = "rented_previously"
+            this_rent.status = RentMovie.RentStatus.PREVIOUS
             this_rent.cost = cost
             this_rent.updated_date = date.today()
             this_rent.save()
 
-            if cost < 0:
-                return Response({"status": "400 Bad Request",
+            if cost <= 0:
+                return Response({"status": "500 Internal Server Error",
                                 "data": ""},
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -153,31 +150,42 @@ class ProfileView(APIView):
             return Response({"status": "401 Unauthorized",
                             "data": "You are not authorized to perform this action"},
                             status=status.HTTP_401_UNAUTHORIZED)
-        #rented_list = RentMovie.objects.filter(user=request.user, status="rented_currently")
 
-        rented_list = RentMovie.objects.filter(user=request.user)
+        # filters = {"user" : request.user}
+        # if request.query_params.get("category"):
+        #     filters["movie.category"] = request.query_params.get("category")
+        # if request.query_params.get("status"):
+        #     filters["status"] = request.query_params.get("status")
+        # if request.query_params.get("rating"):
+        #     filters["movie.rating"] = request.query_params.get("rating")
+        #rented_list = RentMovie.objects.filter(**filters)
+
+        rented_list = RentMovie.objects.all()
         return_dict = {}
-        i = 0
+        i = 1
         for item in rented_list:
-            if request.query_params.get("category") and item.movie.category != request.query_params.__getitem__("category"):
+            if (request.query_params.get("category") and
+                    item.movie.category != request.query_params.get("category")):
                 continue
 
-            if request.query_params.get("status") and item.status != request.query_params.__getitem__("status"):
+            if (request.query_params.get("status") and
+                    item.status != request.query_params.get("status")):
                 continue
 
-            if request.query_params.get("rating") and item.movie.rating != float(request.query_params.__getitem__("rating")):
+            if (request.query_params.get("rating") and
+                    item.movie.rating != float(request.query_params.get("rating"))):
                 continue
 
             key = f"#{i}"
             this_dict = {}
             this_dict["movie"] = item.movie.title
             this_dict["rented on"] = item.rent_date.strftime("%-d %B %Y")
-            if item.status == "rented_currently":
+            if item.status == RentMovie.RentStatus.CURRENT:
                 this_dict["cost"] = calculate_cost(item.rent_date, date.today())
                 this_dict["returned on"] = "-"
                 this_dict["status"] = "rented currently"
             else:
-                this_dict["cost"] = calculate_cost(item.rent_date, item.updated_date)
+                this_dict["cost"] = item.cost
                 this_dict["returned on"] = item.updated_date.strftime("%-d %B %Y")
                 this_dict["status"] = "rented previously"
 
@@ -189,8 +197,14 @@ class ProfileView(APIView):
 def calculate_cost(rent_date, return_or_current_date):
     time_passed = return_or_current_date - rent_date
     days_passed = time_passed.days
+
     if days_passed < 3:
+        # the cost on the first day (days_passed==0) is 1. Therefore if
+        # days_passed is 0, 1, or 2, the cost is 1, 2 or 3 respectively.
         cost = days_passed + 1
     else:
+        # if days_passed > 2, we know the cost is at least 3. We then add 0.5
+        # to the cost, for every additional day after the third.
+        # days_passed-2 because the first day is day 0.
         cost = 3 + (days_passed-2) * 0.5
     return cost
