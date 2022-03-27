@@ -3,8 +3,10 @@ from base_app.models import Movie
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        for movie in Movie.objects.all():
-            movie.delete()
 
-
-        self.stdout.write(self.style.ERROR("Successfully depopulated the database!"))
+        if len(Movie.objects.all()) == 0:
+            self.stdout.write(self.style.WARNING("Movie table already empty!"))
+        else:
+            for movie in Movie.objects.all():
+                movie.delete()
+            self.stdout.write(self.style.ERROR("Successfully depopulated the Movie table!"))
