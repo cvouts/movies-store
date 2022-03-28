@@ -1,5 +1,4 @@
 db.sqlite3
 __pycache__
-curl_get.sh
-curl_patch.sh
-curl_post.sh
+curl_*
+movies_store/user_tokens
