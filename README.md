@@ -61,9 +61,15 @@ For example: ```curl -X GET http://127.0.0.1:8000/api/v1/movies?category=Fantasy
 
 A logged in superuser can make requests to /movies with additional methods.
 
-- POST: ```curl -X POST -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/movies -d "{\"title\":\"Superman\", \"category\": \"Superhero\", \"rating\":7.5}"``` will add the movie to the list.
+- POST: the following will add the movie to the list.
+```
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/movies -d "{\"title\":\"Superman\", \"category\": \"Superhero\", \"rating\":7.5}"
+``` 
 
-- PATCH: ```curl -X PATCH -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/movies -d "{\"details\":\"An alien orphan is sent from his dying planet to Earth, where he grows up to become his adoptive home's first and greatest superhero.\"}"``` will update the entry.
+- PATCH: the following will update the entry. 
+```
+curl -X PATCH -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/movies -d "{\"details\":\"An alien orphan is sent from his dying planet to Earth, where he grows up to become his adoptive home's first and greatest superhero.\"}"
+``` 
 
 The previous POST and PATCH examples are given to demonstrate in a simple but not-so-pretty-looking way, how to pass data arguments. Another way would be with a json file, so instead of `-d "{\"title\":\"Superman\", \"category\": \"Superhero\", \"rating\":7.5}"` we would include
 `--data-binary @path/to/movie.json` to the curl command, where the movie.json file would be:
@@ -75,7 +81,10 @@ The previous POST and PATCH examples are given to demonstrate in a simple but no
 }
 ```
 
-- DELETE: ```curl -X DELETE -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/movies/<movie_id>``` will delete the movie with the given id.
+- DELETE: the following will delete the movie with the given id.
+```
+curl -X DELETE -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/movies/<movie_id>
+``` 
  
 ### /rent and /return
 
