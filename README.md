@@ -26,6 +26,7 @@ This is a proof of concept project, that serves the following API responses:
 Run the following commands in the `movies-store/movies_store/` directory:
 - `python3 -m venv venv; source venv/bin/activate` to create and use a python virtual environment.
 - `pip install -r requirments.txt` to install the project's dependencies.
+- `./manage.py migrate` to create the project tables in the database.
 - Finally, `./manage.py runserver` to start the server.
 
 ### Optional Commands
