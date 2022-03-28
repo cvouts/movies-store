@@ -8,7 +8,6 @@ RentMovieSerializer)
 from datetime import date
 
 class MoviesView(APIView):
-
     def get(self, request, id=None):
         if id:
             movie = get_object_or_404(Movie, id=id)
@@ -32,7 +31,7 @@ class MoviesView(APIView):
 
         if not request.user.is_staff:
             return Response({"status": "403 Forbidden",
-                            "data": "You are not authorized to perform this action"},
+                            "data": "You cannot perform this action"},
                             status=status.HTTP_403_FORBIDDEN)
         return None
 
@@ -120,7 +119,6 @@ class ReturnMovieView(APIView):
                                               status="rented_currently")
         if len(rent_entries) == 1:
             this_rent = rent_entries[0]
-
             cost = calculate_cost(this_rent.rent_date, date.today())
             this_rent.status = RentMovie.RentStatus.PREVIOUS
             this_rent.cost = cost

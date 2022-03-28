@@ -8,9 +8,9 @@ class RentViewTest(TestCase):
     def setUpTestData(cls):
         User.objects.create_user(username="user", password="password")
         Movie.objects.create(title="Lord of the Rings", category="Fantasy",
-                             rating=8)
-        Movie.objects.create(title="Matrix", category="Sci-Fi", rating=8)
-        Movie.objects.create(title="Narnia", category="Fantasy", rating=6)
+                             rating=8.0)
+        Movie.objects.create(title="Matrix", category="Sci-Fi", rating=8.0)
+        Movie.objects.create(title="Narnia", category="Fantasy", rating=6.0)
 
     def test_other_methods(self):
         response = self.client.get(reverse("rent"), {"movie" : "1"})

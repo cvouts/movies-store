@@ -6,7 +6,8 @@ from datetime import date, timedelta
 from base_app.views import calculate_cost
 
 class ProfileViewTest(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         movie_1 = Movie.objects.create(title="Lord of the Rings",
                                        category="Fantasy",
                                        rating=9.0)
@@ -117,7 +118,8 @@ class ProfileViewTest(TestCase):
         movie_rent_3 = RentMovie.objects.get(id=3)
         movie_rent_3.rent_date = today - timedelta(days=6)
         movie_rent_3.updated_date = today - timedelta(days=2)
-        movie_rent_3.cost = calculate_cost(movie_rent_3.rent_date, movie_rent_3.updated_date)
+        movie_rent_3.cost = calculate_cost(movie_rent_3.rent_date,
+                                            movie_rent_3.updated_date)
         movie_rent_3.save()
 
         response = client.get(reverse("profile"))

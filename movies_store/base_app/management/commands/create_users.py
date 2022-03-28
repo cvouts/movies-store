@@ -6,7 +6,6 @@ class Command(BaseCommand):
         if len(User.objects.filter(username="superuser")) > 0:
             self.stdout.write(self.style.ERROR("Users already exist"))
             return
-
         User.objects.create_superuser(username="superuser", password="password")
         User.objects.create_user(username="user", password="password")
         self.stdout.write(self.style.SUCCESS("Superuser \"superuser\" and user \"user\" have been created"))

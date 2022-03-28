@@ -8,15 +8,13 @@ from base_app.views import calculate_cost
 class RentViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        Movie.objects.create(title="Lord of the Rings", category="Fantasy",
-                             rating=9)
+        movie = Movie.objects.create(title="Lord of the Rings",
+                             category="Fantasy",
+                             rating=9.0)
         Movie.objects.create(title="Matrix", category="Sci-Fi",
-                             rating=7)
-        User.objects.create_user(username="user", password="password")
-
-        movie = Movie.objects.get(id=1)
-        user = User.objects.get(id=1)
-
+                             rating=7.0)
+        user = User.objects.create_user(username="user", password="password")
+        
         RentMovie.objects.create(user=user, movie=movie,
                                  status=RentMovie.RentStatus.CURRENT)
 
