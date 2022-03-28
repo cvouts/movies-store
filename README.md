@@ -43,6 +43,12 @@ Run `./manage.py drf_create_token <username>` to create a token for a user, and 
 
 ## How to Use
 
+The project has the following URLs:
+1. /movies
+2. /rent
+3. /return
+4. /profile
+
 ### /movies
 
 #### GET Request
