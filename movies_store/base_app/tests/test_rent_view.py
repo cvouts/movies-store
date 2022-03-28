@@ -40,13 +40,13 @@ class RentViewTest(TestCase):
         user = User.objects.get(username="user")
         movies = RentMovie.objects.filter(user=user,
                                           movie=Movie.objects.get(id=1),
-                                          status="rented currently")
+                                          status="rented_currently")
         self.assertEqual(len(movies), 0)
         response = client.post(reverse("rent"), {"movie" : "1"})
         self.assertEqual(response.status_code, 202)
         movies = RentMovie.objects.filter(user=user,
                                           movie=Movie.objects.get(id=1),
-                                          status="rented currently")
+                                          status="rented_currently")
         self.assertEqual(len(movies), 1)
 
         response = client.post(reverse("rent"), {"movie" : "1"})

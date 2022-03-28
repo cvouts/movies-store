@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='rentmovie',
             name='status',
-            field=models.CharField(choices=[('rented currently', 'Current'), ('rented previously', 'Previous')], max_length=30),
+            field=models.CharField(choices=[('rented_currently', 'Current'), ('rented_previously', 'Previous')], max_length=30),
         ),
     ]

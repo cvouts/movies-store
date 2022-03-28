@@ -9,24 +9,28 @@ class ProfileViewTest(TestCase):
     def setUp(self):
         movie_1 = Movie.objects.create(title="Lord of the Rings",
                                        category="Fantasy",
-                                       rating=9)
+                                       rating=9.0)
         movie_2 = Movie.objects.create(title="Matrix",
                                        category="Sci-Fi",
-                                       rating=7)
+                                       rating=7.0)
         movie_3 = Movie.objects.create(title="Narnia",
                                        category="Fantasy",
-                                       rating=6)
+                                       rating=6.0)
         movie_4 = Movie.objects.create(title="Warcraft",
                                        category="Fantasy",
-                                       rating=6)
+                                       rating=6.0)
 
         user = User.objects.create_user(username="user", password="password")
 
         RentMovie.objects.create(user=user, movie=movie_1,
-                                 status="rented currently")
+                                 status=RentMovie.RentStatus.CURRENT)
         RentMovie.objects.create(user=user, movie=movie_2,
                                  status=RentMovie.RentStatus.CURRENT)
         RentMovie.objects.create(user=user, movie=movie_4,
+                                 status=RentMovie.RentStatus.PREVIOUS)
+        RentMovie.objects.create(user=user, movie=movie_3,
+                                 status=RentMovie.RentStatus.PREVIOUS)
+        RentMovie.objects.create(user=user, movie=movie_3,
                                  status=RentMovie.RentStatus.PREVIOUS)
 
     def test_other_methods(self):
@@ -51,13 +55,13 @@ class ProfileViewTest(TestCase):
         client = self.login()
         response = client.get(reverse("profile"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(len(response.data), 5)
 
     def test_parameters_category(self):
         client = self.login()
         response = client.get(reverse("profile"), {"category": "Fantasy"})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 4)
 
     def test_parameters_category_not_valid(self):
         client = self.login()
@@ -66,13 +70,13 @@ class ProfileViewTest(TestCase):
 
     def test_parameters_status_current(self):
         client = self.login()
-        response = client.get(reverse("profile"), {"status": "rented currently"})
+        response = client.get(reverse("profile"), {"status": "rented_currently"})
         self.assertEqual(len(response.data), 2)
 
     def test_parameters_status_previous(self):
         client = self.login()
-        response = client.get(reverse("profile"), {"status": "rented previously"})
-        self.assertEqual(len(response.data), 1)
+        response = client.get(reverse("profile"), {"status": "rented_previously"})
+        self.assertEqual(len(response.data), 3)
 
     def test_parameters_status_not_valid(self):
         client = self.login()
@@ -82,14 +86,19 @@ class ProfileViewTest(TestCase):
     def test_parameters_category_status(self):
         client = self.login()
         response = client.get(reverse("profile"),
-                               {"status": "rented previously",
+                               {"status": "rented_previously",
                                 "category": "Fantasy"})
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 3)
 
     def test_parameters_rating(self):
         client = self.login()
         response = client.get(reverse("profile"), {"rating" : 9.0})
         self.assertEqual(len(response.data), 1)
+
+    def test_parameters_title(self):
+        client = self.login()
+        response = client.get(reverse("profile"), {"title" : "Narnia"})
+        self.assertEqual(len(response.data), 2)
 
     def test_costs(self):
         client = APIClient()

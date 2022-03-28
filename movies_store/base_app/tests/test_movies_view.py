@@ -21,6 +21,10 @@ class MoviesViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 3)
 
+    def test_detail_url(self):
+        response = self.client.get(reverse("movies"))
+        self.assertEqual(response.data[0]["details_url"], reverse("movie_details", kwargs={"id" : "1"}))
+
     def test_parameters_category(self):
         response = self.client.get(reverse("movies"), {"category": "Fantasy"})
         self.assertEqual(response.status_code, 200)
@@ -34,8 +38,9 @@ class MoviesViewTest(TestCase):
         response = self.client.get(reverse("movies"), {"category": "Fantasy", "rating": 8.0})
         self.assertEqual(len(response.data), 1)
 
-    def test_get_movie_details_exists(self):
+    def test_get_movie_details_200(self):
         response = self.client.get(reverse("movie_details", kwargs={"id" : "1"}))
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["title"], "Lord of the Rings")
 
     def test_get_movie_details_404(self):

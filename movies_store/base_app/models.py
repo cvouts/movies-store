@@ -22,8 +22,8 @@ class User(AbstractUser):
 
 class RentMovie(models.Model):
     class RentStatus(models.TextChoices):
-        CURRENT = "rented currently"
-        PREVIOUS = "rented previously"
+        CURRENT = "rented_currently"
+        PREVIOUS = "rented_previously"
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)

@@ -5,7 +5,6 @@ from rest_framework import status
 from .models import Movie, User, RentMovie
 from .serializers import (MovieDetailsSerializer, MovieBriefSerializer,
 RentMovieSerializer)
-from django.contrib.admin.views.decorators import staff_member_required
 from datetime import date
 
 # Create your views here.
@@ -16,13 +15,12 @@ class MoviesView(APIView):
             serializer = MovieDetailsSerializer(movie)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        movies = Movie.objects.all()
+        filters = {}
         if request.query_params.get("category"):
-            movies = movies.filter(category=request.query_params.get("category"))
-
+            filters["category"] = request.query_params.get("category")
         if request.query_params.get("rating"):
-            movies = movies.filter(rating=request.query_params.get("rating"))
-
+            filters["rating"] = request.query_params.get("rating")
+        movies = Movie.objects.filter(**filters)
         serializer = MovieBriefSerializer(movies, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -66,7 +64,6 @@ class MoviesView(APIView):
         if authentication != None:
             return authentication
 
-
         movie = get_object_or_404(Movie, id=id)
         movie.delete()
         return Response({"status": "success", "data": "Movie Deleted"},
@@ -90,10 +87,10 @@ class RentMovieView(APIView):
 
         rent_entries_count = RentMovie.objects.filter(user=request.user,
                                               movie=serializer.validated_data["movie"],
-                                              status="rented currently").count()
+                                              status="rented_currently").count()
 
         if rent_entries_count == 0:
-            serializer.save(user=request.user, status="rented currently")
+            serializer.save(user=request.user, status="rented_currently")
             return Response({"status": "202 ACCEPTED",
                         "data": "Movie rented successfully"},
                         status=status.HTTP_202_ACCEPTED)
@@ -120,7 +117,7 @@ class ReturnMovieView(APIView):
 
         rent_entries = RentMovie.objects.filter(user=request.user,
                                               movie=serializer.validated_data["movie"],
-                                              status="rented currently")
+                                              status="rented_currently")
         if len(rent_entries) == 1:
             this_rent = rent_entries[0]
 
@@ -151,31 +148,20 @@ class ProfileView(APIView):
                             "data": "You are not authorized to perform this action"},
                             status=status.HTTP_401_UNAUTHORIZED)
 
-        # filters = {"user" : request.user}
-        # if request.query_params.get("category"):
-        #     filters["movie.category"] = request.query_params.get("category")
-        # if request.query_params.get("status"):
-        #     filters["status"] = request.query_params.get("status")
-        # if request.query_params.get("rating"):
-        #     filters["movie.rating"] = request.query_params.get("rating")
-        #rented_list = RentMovie.objects.filter(**filters)
+        filters = {"user" : request.user}
+        if request.query_params.get("status"):
+            filters["status"] = request.query_params.get("status")
+        if request.query_params.get("title"):
+            filters["movie__title"] = request.query_params.get("title")
+        if request.query_params.get("category"):
+            filters["movie__category"] = request.query_params.get("category")
+        if request.query_params.get("rating"):
+            filters["movie__rating"] = request.query_params.get("rating")
+        rented_list = RentMovie.objects.filter(**filters)
 
-        rented_list = RentMovie.objects.all()
         return_dict = {}
         i = 1
         for item in rented_list:
-            if (request.query_params.get("category") and
-                    item.movie.category != request.query_params.get("category")):
-                continue
-
-            if (request.query_params.get("status") and
-                    item.status != request.query_params.get("status")):
-                continue
-
-            if (request.query_params.get("rating") and
-                    item.movie.rating != float(request.query_params.get("rating"))):
-                continue
-
             key = f"#{i}"
             this_dict = {}
             this_dict["movie"] = item.movie.title
@@ -183,11 +169,11 @@ class ProfileView(APIView):
             if item.status == RentMovie.RentStatus.CURRENT:
                 this_dict["cost"] = calculate_cost(item.rent_date, date.today())
                 this_dict["returned on"] = "-"
-                this_dict["status"] = "rented currently"
+                this_dict["status"] = "rented_currently"
             else:
                 this_dict["cost"] = item.cost
                 this_dict["returned on"] = item.updated_date.strftime("%-d %B %Y")
-                this_dict["status"] = "rented previously"
+                this_dict["status"] = "rented_previously"
 
             return_dict[key] = this_dict
             i += 1
@@ -205,6 +191,5 @@ def calculate_cost(rent_date, return_or_current_date):
     else:
         # if days_passed > 2, we know the cost is at least 3. We then add 0.5
         # to the cost, for every additional day after the third.
-        # days_passed-2 because the first day is day 0.
         cost = 3 + (days_passed-2) * 0.5
     return cost

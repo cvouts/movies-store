@@ -5,7 +5,7 @@ from django.urls import reverse
 class MovieDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
-        fields = ['id', 'title', 'category', 'details','rating']
+        fields = ['id', 'title', 'category', 'rating', 'details']
 
 class MovieBriefSerializer(serializers.ModelSerializer):
     details_url = serializers.SerializerMethodField()
@@ -16,7 +16,6 @@ class MovieBriefSerializer(serializers.ModelSerializer):
 
     def get_details_url(self, obj):
         return reverse("movie_details", kwargs={"id" : obj.id})
-
 
 class RentMovieSerializer(serializers.ModelSerializer):
     class Meta:
