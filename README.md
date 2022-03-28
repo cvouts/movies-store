@@ -45,7 +45,7 @@ Run `./manage.py drf_create_token <username>` to create a token for a user, and 
 ### /movies
 
 #### GET Request
-Running this curl command ```curl -X GET http://127.0.0.1:8000/api/v1/movies``` will return a list of all the movies, containing their title, 
+Running this curl command ```curl -X GET "http://127.0.0.1:8000/api/v1/movies"``` will return a list of all the movies, containing their title, 
 category, rating and the url to get their details.
 
 ```
@@ -68,7 +68,7 @@ category, rating and the url to get their details.
     "details_url": "/api/v1/movies/14"
 },
 ```
-`curl -X GET http://127.0.0.1:8000/<details_url>` will then return information about the specific movie.
+`curl -X GET "http://127.0.0.1:8000/<details_url>"` will then return information about the specific movie.
 ```
 {
     "id": 12,
@@ -81,7 +81,7 @@ category, rating and the url to get their details.
 
 The GET request can take arguments that filter the list of movies returned. The movies can be filtered based on their **category** and their **ranking**.
 Both arguments can be set in the same request.
-For example: ```curl -X GET http://127.0.0.1:8000/api/v1/movies?category=Fantasy&rating=9```
+For example: ```curl -X GET "http://127.0.0.1:8000/api/v1/movies?category=Fantasy&rating=9"```
 
 #### POST / PATCH / DELETE Request
 
@@ -134,10 +134,10 @@ curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v
 Additional GET parameters can be included to filter the list, based on the movie's **title** (to get information about every time they have rented a specific movie), the movie's **category**, and the **status** of the renting (if the movie is currently being rented or was in the past).
 A couple examples:
 ```
-curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile?category=Fantasy
+curl -X GET -H "Authorization: Token <token_string>" "http://127.0.0.1:8000/api/v1/profile?category=Fantasy"
 ```
 ```
-curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile?status=rented_currently
+curl -X GET -H "Authorization: Token <token_string>" "http://127.0.0.1:8000/api/v1/profile?status=rented_currently"
 ```
 
 These parameters can also be combined.
