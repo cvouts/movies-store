@@ -88,23 +88,31 @@ curl -X DELETE -H "Authorization: Token <token_string>" http://127.0.0.1:8000/ap
  
 ### /rent and /return
 
-A logged in user can rent a movie by sending a POST request to /rent and providing the movie's id. For example, by sending this request:
-```curl -X POST -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/rent -d "{\"movie\":\"12\"}"```
-The user requests to rent the movie with id=12.
+A logged in user can rent a movie by sending a POST request to /rent and providing the movie's id. For example, by sending the following request, the user requests to rent the movie with id=12.
+```
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/rent -d "{\"movie\":\"12\"}"
+```
 
-They can similarly return a rented movie:
-```curl -X POST -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/return -d "{\"movie\":\"12\"}"```
-will complete the return and notify the user about the charge.
+They can similarly return a rented movie. This next command will complete the return and notify the user about the charge.
+```
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/return -d "{\"movie\":\"12\"}"
+```
 
 ### /profile
 
 A GET request to /profile, by a logged in user, will return a list of information about every occasion they have rented any movie in the store.
-```curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile```
+```
+curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile
+```
 
 Additional GET parameters can be included to filter the list, based on the movie's **title** (to get information about every time they have rented a specific movie), the movie's **category**, and the **status** of the renting (if the movie is currently being rented or was in the past).
 A couple examples:
-```curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile?category=Fantasy```
-```curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile?status=rented_currently```
+```
+curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile?category=Fantasy
+```
+```
+curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile?status=rented_currently
+```
 
 These parameters can also be combined.
 
