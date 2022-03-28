@@ -7,8 +7,8 @@ from .serializers import (MovieDetailsSerializer, MovieBriefSerializer,
 RentMovieSerializer)
 from datetime import date
 
-# Create your views here.
 class MoviesView(APIView):
+
     def get(self, request, id=None):
         if id:
             movie = get_object_or_404(Movie, id=id)
