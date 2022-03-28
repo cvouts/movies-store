@@ -29,16 +29,17 @@ Run the following commands in the `movies-store/movies_store/` directory:
 - `./manage.py migrate` to create the project tables in the database.
 - Finally, `./manage.py runserver` to start the server.
 
-### Optional Commands
+### Optional
 
-- `./manage.py create_users` to create a superuser with username=superuser and password=password and a simple user with username=user and password=password.
-- `./manage.py populate_movies` to add 20 movies to the list. `./manage.py depopulate_movies` can be used to remove every movie from the list.
+- Run `./manage.py create_users` to create a superuser with username=superuser and password=password and a simple user with username=user and password=password.
+- Run `./manage.py populate_movies` to add 20 movies to the list. `./manage.py depopulate_movies` can be used to remove every movie from the list.
+- Install [direnv](https://direnv.net/) so that you can automatically configure your environment when you cd into this project's directory
 
-### User Authentication
+## User Authentication
 
 In order for a user's requests to have proper authentication, an authorization token must be included in their request. 
 Run `./manage.py drf_create_token <username>` to create a token for a user, and include it by adding 
-`-H "Authorization: Token <token_string>"` to the curl command.
+`-H "Authorization: Token <token_string>"` to the curl commands that require authentication.
 
 ## How to Use
 
