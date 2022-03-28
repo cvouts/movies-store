@@ -33,9 +33,17 @@ Run the following commands in the `movies-store/movies_store/` directory:
 - `./manage.py create_users` to create a superuser with username=superuser and password=password and a simple user with username=user and password=password.
 - `./manage.py populate_movies` to add 20 movies to the list. `./manage.py depopulate_movies` can be used to remove every movie from the list.
 
-
 ## How to Use
 
+### User Authentication
+
+In order for a user's requests to have proper authentication, an authorization token must be included in their request. 
+Run `./manage.py crf_create_token <username>` to create a token for a user, and include it by adding 
+`-H "Authorization: Token <token_string>"` to the curl command.
+
+### /movies
+
+#### GET Request
 Running this curl command `curl -X GET http://127.0.0.1:8000/api/v1/movies` will return a list of all the movies, containing their title, 
 category, rating and the url to get their details.
 
@@ -46,12 +54,42 @@ category, rating and the url to get their details.
 <img width="980" alt="Screenshot 2022-03-28 at 14 23 27" src="https://user-images.githubusercontent.com/15820388/160388080-86c85c0f-0217-45f5-903b-d607cd6b1b90.png">
 
 The GET request can take arguments that filter the list of movies returned. The movies can be filtered based on their category and their ranking.
-Both arguments can be set on the same request.
+Both arguments can be set in the same request.
 For example: `curl -X GET http://127.0.0.1:8000/api/v1/movies?category=Fantasy&rating=9`
 
+#### POST / PATCH / DELETE Request
 
+A logged in superuser can make requests to /movies with additional methods.
 
-- `./manage.py crf_create_token <username>` to create authentication tokens for each user.  
+- POST: `curl -X POST -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/movies -d "{\"title\":\"Superman\", \"category\": \"Superhero\", \"rating\":7.5}"` will add the movie to the list.
+
+- PATCH: `curl -X PATCH -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/movies -d "{\"details\":\"An alien orphan is sent from his dying planet to Earth, where he grows up to become his adoptive home's first and greatest superhero.\"}"` will update the entry.
+
+- DELETE: `curl -X DELETE -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/movies/<movie_id>` will delete the movie with the given id.
+ 
+### /rent and /return
+
+A logged in user can rent a movie by sending a POST request to /rent and providing the movie's id. For example, by sending this request:
+`curl -X POST -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/rent -d "{\"movie\":\"12\"}"`
+The user requests to rent the movie with id=12.
+
+They can similarly return a rented movie:
+`curl -X POST -H "Content-Type: application/json" -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/return -d "{\"movie\":\"12\"}"`
+will complete the return and notify the user about the charge.
+
+### /profile
+
+A GET request to /profile, by a logged in user, will return a list of information about every occasion they have rented any movie in the store.
+`curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile`
+
+Additional GET parameters can be included to filter the list, based on the movie's title (to get information about every time they have rented a specific movie), the movie's category, and the status of the renting (if the movie is currently being rented or was in the past).
+A couple examples:
+`curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile?category=Fantasy`
+`curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile?status=rented_currently`
+
+These parameters can also be combined.
+
+The list includes the renting's cost of the renting's charge. If the movie is currently on rent, the cost returned is the cost accrued up to the current day.
 
 ## Testing
 
