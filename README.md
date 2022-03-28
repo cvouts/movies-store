@@ -47,11 +47,36 @@ Run `./manage.py drf_create_token <username>` to create a token for a user, and 
 Running this curl command ```curl -X GET http://127.0.0.1:8000/api/v1/movies``` will return a list of all the movies, containing their title, 
 category, rating and the url to get their details.
 
-<img width="455" alt="Screenshot 2022-03-28 at 14 20 33" src="https://user-images.githubusercontent.com/15820388/160387502-a8002dd2-a402-4d02-a4e8-8c59067c8dc6.png">
-
-```curl -X GET http://127.0.0.1:8000/<details_url>``` will then return information about the specific movie.
-
-<img width="980" alt="Screenshot 2022-03-28 at 14 23 27" src="https://user-images.githubusercontent.com/15820388/160388080-86c85c0f-0217-45f5-903b-d607cd6b1b90.png">
+```
+{
+    "title": "The Shawshank Redemption",
+    "category": "Drama",
+    "rating": 9.3,
+    "details_url": "/api/v1/movies/12"
+},
+{
+    "title": "The Lord of the Rings: The Return of the King",
+    "category": "Fantasy",
+    "rating": 9.0,
+    "details_url": "/api/v1/movies/13"
+},
+{
+    "title": "The Godfather",
+    "category": "Crime",
+    "rating": 9.2,
+    "details_url": "/api/v1/movies/14"
+},
+```
+`curl -X GET http://127.0.0.1:8000/<details_url>` will then return information about the specific movie.
+```
+{
+    "id": 12,
+    "title": "The Shawshank Redemption",
+    "category": "Drama",
+    "rating": 9.3,
+    "details": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency."
+}
+```
 
 The GET request can take arguments that filter the list of movies returned. The movies can be filtered based on their **category** and their **ranking**.
 Both arguments can be set in the same request.
