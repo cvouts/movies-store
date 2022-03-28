@@ -26,25 +26,33 @@ This is a proof of concept project, that serves the following API responses:
 Run the following commands in the `movies-store/movies_store/` directory:
 - `python3 -m venv venv; source venv/bin/activate` to create and use a python virtual environment.
 - `pip install -r requirments.txt` to install the project's dependencies.
+- `./manage.py migrate` to create the project tables in the database.
 - Finally, `./manage.py runserver` to start the server.
 
-### Optional Commands
+### Optional
 
-- `./manage.py create_users` to create a superuser with username=superuser and password=password and a simple user with username=user and password=password.
-- `./manage.py populate_movies` to add 20 movies to the list. `./manage.py depopulate_movies` can be used to remove every movie from the list.
+- Run `./manage.py create_users` to create a superuser with username=superuser and password=password and a simple user with username=user and password=password.
+- Run `./manage.py populate_movies` to add 20 movies to the list. `./manage.py depopulate_movies` can be used to remove every movie from the list.
+- Install [direnv](https://direnv.net/) so that you can automatically configure your environment when you cd into this project's directory
 
-### User Authentication
+## User Authentication
 
 In order for a user's requests to have proper authentication, an authorization token must be included in their request. 
 Run `./manage.py drf_create_token <username>` to create a token for a user, and include it by adding 
-`-H "Authorization: Token <token_string>"` to the curl command.
+`-H "Authorization: Token <token_string>"` to the curl commands that require authentication.
 
 ## How to Use
+
+The project has the following URLs:
+1. /movies
+2. /rent
+3. /return
+4. /profile
 
 ### /movies
 
 #### GET Request
-Running this curl command ```curl -X GET http://127.0.0.1:8000/api/v1/movies``` will return a list of all the movies, containing their title, 
+Running this curl command ```curl -X GET "http://127.0.0.1:8000/api/v1/movies"``` will return a list of all the movies, containing their title, 
 category, rating and the url to get their details.
 
 ```
@@ -67,7 +75,7 @@ category, rating and the url to get their details.
     "details_url": "/api/v1/movies/14"
 },
 ```
-`curl -X GET http://127.0.0.1:8000/<details_url>` will then return information about the specific movie.
+`curl -X GET "http://127.0.0.1:8000/<details_url>"` will then return information about the specific movie.
 ```
 {
     "id": 12,
@@ -80,7 +88,7 @@ category, rating and the url to get their details.
 
 The GET request can take arguments that filter the list of movies returned. The movies can be filtered based on their **category** and their **ranking**.
 Both arguments can be set in the same request.
-For example: ```curl -X GET http://127.0.0.1:8000/api/v1/movies?category=Fantasy&rating=9```
+For example: ```curl -X GET "http://127.0.0.1:8000/api/v1/movies?category=Fantasy&rating=9"```
 
 #### POST / PATCH / DELETE Request
 
@@ -133,10 +141,10 @@ curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v
 Additional GET parameters can be included to filter the list, based on the movie's **title** (to get information about every time they have rented a specific movie), the movie's **category**, and the **status** of the renting (if the movie is currently being rented or was in the past).
 A couple examples:
 ```
-curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile?category=Fantasy
+curl -X GET -H "Authorization: Token <token_string>" "http://127.0.0.1:8000/api/v1/profile?category=Fantasy"
 ```
 ```
-curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile?status=rented_currently
+curl -X GET -H "Authorization: Token <token_string>" "http://127.0.0.1:8000/api/v1/profile?status=rented_currently"
 ```
 
 These parameters can also be combined.
