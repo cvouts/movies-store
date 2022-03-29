@@ -8,31 +8,31 @@ Created in Django.
 
 This is a proof of concept project, that serves the following API responses:
 - Anyone can
-  - get a list of all movies
-  - filter the list based on movie categories or ranking
-  - get the details for a movie.   
+  - get a list of **all movies**
+  - **filter** the list based on movie **categories** or **ranking**
+  - get the **details** for a movie.   
 - Logged-in regular users can also
-  - rent a movie
-  - return a movie and get the charge based on the days they had it
-  - get a list of rentals they have from the store
-  - filter the list based on movie title, category, ranking, or rental status.
+  - **rent** a movie
+  - **return** a movie and get the **charge** based on the days they had it
+  - get a **list of rentals** they have from the store
+  - **filter** the list based on movie **title**, **category**, **ranking**, or rental **status**.
 - Finally, superusers can
-  - add a movie to the list
-  - edit a movie listing
-  - delete a movie from the list.
+  - **add** a movie to the list
+  - **edit** a movie listing
+  - **delete** a movie from the list.
 
 ## Installation
 
 Run the following commands in the `movies-store/movies_store/` directory:
 - `python3 -m venv venv; source venv/bin/activate` to create and use a python virtual environment.
 - `pip install -r requirments.txt` to install the project's dependencies.
-- `./manage.py migrate` to create the project tables in the database.
+- `./manage.py migrate` to set up the database.
 - Finally, `./manage.py runserver` to start the server.
 
 ### Optional
 
 - Run `./manage.py create_users` to create a superuser with username=superuser and password=password and a simple user with username=user and password=password.
-- Run `./manage.py populate_movies` to add 20 movies to the list. `./manage.py depopulate_movies` can be used to remove every movie from the list.
+- Run `./manage.py populate_movies` to add 20 movies to the list. `./manage.py depopulate_movies` can also be used to remove every movie from the list.
 - Install [direnv](https://direnv.net/) so that you can automatically configure your environment when you cd into this project's directory
 
 ## User Authentication
@@ -44,15 +44,15 @@ Run `./manage.py drf_create_token <username>` to create a token for a user, and 
 ## How to Use
 
 The project has the following URLs:
-1. /movies
-2. /rent
-3. /return
-4. /profile
+1. api/v1/movies
+2. api/v1/rent
+3. api/v1/return
+4. api/v1/profile
 
 ### /movies
 
 #### GET Request
-Running this curl command ```curl -X GET "http://127.0.0.1:8000/api/v1/movies"``` will return a list of all the movies, containing their title, 
+Running `curl -X GET "http://127.0.0.1:8000/api/v1/movies"` will return a list of all the movies, containing their title, 
 category, rating and the url to get their details.
 
 ```
@@ -88,7 +88,7 @@ category, rating and the url to get their details.
 
 The GET request can take arguments that filter the list of movies returned. The movies can be filtered based on their **category** and their **ranking**.
 Both arguments can be set in the same request.
-For example: ```curl -X GET "http://127.0.0.1:8000/api/v1/movies?category=Fantasy&rating=9"```
+For example: `curl -X GET "http://127.0.0.1:8000/api/v1/movies?category=Fantasy&rating=9"`
 
 #### POST / PATCH / DELETE Request
 
@@ -157,11 +157,11 @@ Run `./manage.py test --shuffle` to test the project. `--shuffle` ensures a rand
 
 ## Considerations
 - Authentication: the scope of this project does not include real world authentication considerations like:
-  - the danger of sending the token through http instead of https, therefore sending it through the internet in plain text.
+  - sending the token through http instead of https, therefore sending it through the internet in plain text.
   - the need for the user to be able to revoke their token or know when it was last used.
-  - the danger of keeping all the tokens in plain text in the database.
-  - not keeping the same tokens indefinitely.
+  - keeping all the tokens in plain text in the database.
+  - keeping the same tokens indefinitely.
 
 - Pagination: If there were hundreds of thousands of movies in the database, requests to /movies from multiple users would slow down our service considerably. Pagination would allow us to serve only a small number of movies at a time.  
 
-- POSTing the same movie multiple times: Since additional information about movies like "release year" are not included, it is currently possible for a superuser to successfully add the exact same movie to the database multiple times. 
+- POSTing the same movie multiple times: it is currently possible for a superuser to successfully add the same movie to the database multiple times. 
