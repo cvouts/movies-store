@@ -138,7 +138,7 @@ A GET request to /profile, by a logged in user, will return a list of informatio
 curl -X GET -H "Authorization: Token <token_string>" http://127.0.0.1:8000/api/v1/profile
 ```
 
-Additional GET parameters can be included to filter the list, based on the movie's **title** (to get information about every time they have rented a specific movie), the movie's **category**, and the **status** of the renting (if the movie is currently being rented or was in the past).
+Additional GET parameters can be included to filter the list, based on the movie's **title** (to get information about every time they have rented a specific movie), the movie's **category**, and the **status** of the renting (which can be either "rented_currently" or "rented_previously").
 A couple examples:
 ```
 curl -X GET -H "Authorization: Token <token_string>" "http://127.0.0.1:8000/api/v1/profile?category=Fantasy"
