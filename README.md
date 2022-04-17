@@ -21,11 +21,18 @@ This is a proof of concept project, that serves the following API responses:
   - **edit** a movie listing
   - **delete** a movie from the list.
 
-## Installation
+## General requirements
+
+- Ensure you have docker and docker-compose
+- Ensure you have postgresql installed locally - it is required to install psycopg2 from requirements.txt
+    (e.g. `$ brew install postgresql` on Mac OS)
+
+## Project Installation
 
 Run the following commands in the `movies-store/movies_store/` directory:
 - `python3 -m venv venv; source venv/bin/activate` to create and use a python virtual environment.
 - `pip install -r requirments.txt` to install the project's dependencies.
+- `docker-compose up -d` to start the db container
 - `./manage.py migrate` to set up the database.
 - Finally, `./manage.py runserver` to start the server.
 
