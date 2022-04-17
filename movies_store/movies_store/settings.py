@@ -20,7 +20,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*8^1*=k&=t94o#q3o#ltucj(gaj_jcr29l7ypqk@r3mi0qc!lk'
+with open("secret_key.txt", "r") as key_file:
+    SECRET_KEY = key_file.readline()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -84,10 +85,19 @@ WSGI_APPLICATION = 'movies_store.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+with open("database.env", "r") as database_info:
+    db_user = database_info.readline().split("=")[1].replace("\n", "")
+    db_pass = database_info.readline().split("=")[1].replace("\n", "")
+    db_name = database_info.readline().split("=")[1].replace("\n", "")
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': db_name,
+        'USER': db_user,
+        'PASSWORD': db_pass,
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
