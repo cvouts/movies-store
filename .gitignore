@@ -2,3 +2,6 @@ db.sqlite3
 __pycache__
 curl_*
 movies_store/user_tokens
+database.env
+secret_key.txt
+venv/
